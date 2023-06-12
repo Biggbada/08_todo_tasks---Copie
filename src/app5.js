@@ -8,50 +8,72 @@ const textInput = document.querySelector("#task-input");
 const submitButton = document.querySelector("#submit-button");
 const toDoCOntainer = document.querySelector("#to-do-tasks-container");
 const inProgress = document.querySelector("#in-progress-tasks-container");
+const taskContainer = document.querySelectorAll(".task-container");
 const taskList = [];
+//***************** */
+//***************** */
 //***************** */
 
 class Task {
-   constructor(text) {
-      this.text = text;
-   }
-   makeADiv() {
-      console.log(inProgress);
-      const newDiv = document.createElement("div");
-      toDoCOntainer.prepend(newDiv);
-      newDiv.textContent = this.text;
-      newDiv.addEventListener("drag", (event) => {
-         console.log("dragging");
-      });
-      column02.addEventListener("dragover", (event) => {
-         console.log("dragover");
-         console.log(newDiv);
-      });
-      column02.addEventListener("dragenter", (event) => {
-         console.log("dragenter");
-         console.log(newDiv);
-      });
-      column02.addEventListener("dragleave", (event) => {
-         console.log("dragleave");
-         console.log(newDiv);
-      });
-      column02.addEventListener("drop", (event) => {
-         console.log("drop");
-         console.log(newDiv);
-         inProgress.textContent = Task.text;
-      });
+   position = "To Do";
+   constructor(content) {
+      this.content = content;
+      this.id = taskList.length + 1;
    }
 }
 
-// Ne pas oublier que le reset divs ne sert à rien ...
+//***************** */
+class TaskManager extends Task {
+   constructor(id, position) {
+      super(id, position);
+   }
+   orderTasks() {
+      taskList.forEach();
+   }
+   createTaskDiv() {
+      const newDiv = createFullElement("div", "#to-do-tasks-container", {
+         textContent: textInput.value,
+         className: "task-div",
+         draggable: "true",
+         id: `task-${this.id}`,
+      });
+      const taskDiv = document.querySelectorAll(".task-div");
+      console.log(taskDiv);
+      for (let i = 0; i < taskDiv.length; i++) {
+         taskDiv[i].addEventListener("drag", (event) => {
+            console.log("dragging");
+         });
+         taskDiv[i].addEventListener("dragstart", (event) => {
+            console.log("dragstart");
+         });
+         inProgress.addEventListener("dragenter", (event) => {
+            console.log("dragenter");
+            inProgress.classList.add("targeted");
+         });
+         inProgress.addEventListener("dragleave", (event) => {
+            console.log("dragleave");
+            console.log("dropped");
+            console.log(this.content);
+            inProgress.textContent = taskDiv[i].textContent;
+            this.position = "In progress";
+            console.log(this.position);
+         });
+         inProgress.addEventListener("drop", (event) => {
+            console.log("dropped !");
+         });
+      }
+   }
+}
+//***************** */
 
 //***************** */
 //
 submitButton.addEventListener("click", (event) => {
    event.preventDefault();
-   console.log(textInput.value);
-   const submitedTask = new Task(textInput.value);
-   submitedTask.makeADiv();
+   const newTask = new TaskManager(textInput.value);
+   newTask.createTaskDiv();
+   taskList.push(newTask);
+   textInput.value = "";
 });
 
 //***************** */

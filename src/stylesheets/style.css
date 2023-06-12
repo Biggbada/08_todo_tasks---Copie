@@ -44,6 +44,10 @@ input {
 #column-02 h2 {
    color: rgb(255, 213, 0);
 }
+#in-progress-tasks-container {
+   height: 100px;
+   width: 100%;
+}
 
 #column-03 h2 {
    color: red;

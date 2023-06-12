@@ -6,55 +6,81 @@ const column01 = document.querySelector("#column-01");
 const column02 = document.querySelector("#column-02");
 const textInput = document.querySelector("#task-input");
 const submitButton = document.querySelector("#submit-button");
-const toDoCOntainer = document.querySelector("#to-do-tasks-container");
+const toDoContainer = document.querySelector("#to-do-tasks-container");
 const inProgress = document.querySelector("#in-progress-tasks-container");
+const taskContainer = document.querySelectorAll(".task-container");
 const taskList = [];
-//***************** */
 
 class Task {
-   constructor(text) {
-      this.text = text;
+   position = "To Do";
+   constructor(content) {
+      this.content = content;
+      this.id = taskList.length + 1;
    }
-   makeADiv() {
-      console.log(inProgress);
-      const newDiv = document.createElement("div");
-      toDoCOntainer.prepend(newDiv);
-      newDiv.textContent = this.text;
-      newDiv.addEventListener("drag", (event) => {
-         console.log("dragging");
+
+   createTaskDiv() {
+      const newDiv = createFullElement("div", "#to-do-tasks-container", {
+         textContent: this.content,
+         className: "task-div",
+         draggable: "true",
       });
-      column02.addEventListener("dragover", (event) => {
-         console.log("dragover");
-         console.log(newDiv);
+
+      newDiv.addEventListener("dragstart", (event) => {
+         event.dataTransfer.setData("text/plain", this.id);
+         event.currentTarget.classList.add("dragging");
       });
-      column02.addEventListener("dragenter", (event) => {
-         console.log("dragenter");
-         console.log(newDiv);
-      });
-      column02.addEventListener("dragleave", (event) => {
-         console.log("dragleave");
-         console.log(newDiv);
-      });
-      column02.addEventListener("drop", (event) => {
-         console.log("drop");
-         console.log(newDiv);
-         inProgress.textContent = Task.text;
+
+      newDiv.addEventListener("dragend", (event) => {
+         event.currentTarget.classList.remove("dragging");
       });
    }
 }
 
-// Ne pas oublier que le reset divs ne sert à rien ...
+class TaskManager extends Task {
+   constructor(content) {
+      super(content);
+   }
 
-//***************** */
-//
+   createTaskDiv() {
+      super.createTaskDiv();
+
+      this.taskDiv.addEventListener("dragenter", (event) => {
+         event.preventDefault();
+         inProgress.classList.add("targeted");
+      });
+
+      this.taskDiv.addEventListener("dragover", (event) => {
+         event.preventDefault();
+      });
+
+      this.taskDiv.addEventListener("dragleave", (event) => {
+         event.preventDefault();
+         inProgress.classList.remove("targeted");
+      });
+
+      this.taskDiv.addEventListener("drop", (event) => {
+         event.preventDefault();
+         const taskId = event.dataTransfer.getData("text/plain");
+         const task = taskList.find((task) => task.id === parseInt(taskId));
+         if (task) {
+            inProgress.appendChild(task.taskDiv);
+            task.position = "In Progress";
+            inProgress.classList.remove("targeted");
+         }
+      });
+   }
+}
+
 submitButton.addEventListener("click", (event) => {
    event.preventDefault();
-   console.log(textInput.value);
-   const submitedTask = new Task(textInput.value);
-   submitedTask.makeADiv();
+   const newTask = new TaskManager(textInput.value);
+   newTask.createTaskDiv();
+   taskList.push(newTask);
+   textInput.value = "";
 });
 
-//***************** */
+// Reste du code ...
+
 function createFullElement(tagName, source, properties) {
    const element = document.createElement(tagName);
    sourceElement = document.querySelector(source);
@@ -66,8 +92,6 @@ function createFullElement(tagName, source, properties) {
 
    return element;
 }
-
-//***************** */
 
 function createEnvironment() {
    createFullElement("div", "#app", {
